@@ -16,7 +16,6 @@
     <link rel="stylesheet" href="css/animate.css">
 
 
-	<script src="js/mainApp.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
 </head>
@@ -84,12 +83,63 @@
 						templateUrl : "./contacts.html"
 						})
 				.when("/signin", {
-						templateUrl : "./signin.html"
+						templateUrl : "./signin.html",
+						controller: "LoginCtrl"
 						})
 				.when("/signup", {
 						templateUrl : "./signup.html"
 						})
 				});
+
+
+
+app.controller('LoginCtrl', function($scope, $location, $rootScope, $http) {
+    var vm = this;
+
+    vm.handleSubmit = handleSubmit;
+    vm.resetLoginForm = resetLoginForm;
+
+    $rootScope.isAuthorized = false;
+
+   function handleSubmit() {
+//       var login = $rootScope.APIServerAddress + "accounts/login";
+         var login = "http://127.0.0.1:9999/api/accounts/login";
+  
+
+       $http.post(login, $scope.login) 
+      .then(function(response) { 
+            console.log("Login successful.");
+
+			if(response.data){
+					console.log("The response is: ", response.data);
+			}
+            $rootScope.isAuthorized = true;
+
+       })
+	   .catch(function(response){
+			   console.log("Login unsuccessful.");
+	   });
+      }
+       
+    function resetLoginForm(){
+		$scope.login = null;
+    }
+
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 </script>
