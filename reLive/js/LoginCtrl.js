@@ -18,7 +18,7 @@ auth.controller('LoginCtrl', function($scope, $location, $mdDialog, $rootScope, 
       .then(function(response) { 
             console.log("Login successful.");
 
-			if(response.result){
+			if(response.data){
 					console.log("The response is: ", response.data);
 			}
             $rootScope.isAuthorized = true;
