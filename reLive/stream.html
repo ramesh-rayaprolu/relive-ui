@@ -8,10 +8,11 @@
 			  <!--<video ng-src="{{videoSource}}" controls></video>-->
 			  <!--<video controls="controls" name="Video Name" src="{{videoUrl | trustUrl}}"></video>-->
 
+			  <!--
 			  <div class="html5vfix">
-			  <source ng-repeat="source in sources" vsrc="{{ source.path }}" type="{{ source.type }}" html5vfix>
-	  	</div>
-
+			  	<source ng-repeat="source in sources" vsrc="{{ source.path }}" type="{{ source.type }}" html5vfix>
+	  		  </div>
+			  -->
 
 	  </video>
 
@@ -21,3 +22,22 @@
 	  </div>
 </div>
 
+
+
+<!-- this works because the src is hardcoded
+
+<div id="streamVideo" ng-controller="StreamCtrl">
+	  <video id=example-video width=960 height=400 class="video-js vjs-default-skin" controls>
+			  <source src="http://localhost:9999/api/media/play/8/dronedog/dronedog.m3u8" type="application/x-mpegURL">
+	  </video>
+
+
+	  // Error 2, made a custom directive and got error 2 
+	  <div class="html5vfix">
+		<source ng-repeat="source in sources" vsrc="{{ source.path }}" type="{{ source.type }}" html5vfix>
+	  </div>
+
+</div>
+
+-->
+			  
