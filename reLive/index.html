@@ -180,6 +180,7 @@ app.controller('UploadCtrl', ['$scope', 'fileUpload', '$location','$http','$cook
 		$scope.userInfo = JSON.parse($cookies.get('user_info'));
 		$scope.userPid = $scope.userInfo.PID;
 	}else{
+		$location.path("/signin");
 		$scope.userInfo = null;
 	}
 
@@ -224,11 +225,14 @@ app.controller('UploadCtrl', ['$scope', 'fileUpload', '$location','$http','$cook
 		console.log("File name is: ", $scope.myFile.name);
 		console.dir(file);
 
-		//var uploadUrl = "http://localhost:9999/api/media/store?catalog=test&id=1&title=" + $scope.myFile.name;
-		uploadUrl = uploadUrl + $scope.selectedCatalog + "&id=" + $scope.selectedCustomerId + "&title=" + $scope.myFile.name;
+		if( ($scope.selectedCustomerId == null) || ($scope.selectedCatalog == null) ){
+			console.log("need to select customer and catalog");			
+		}else{
+			uploadUrl = uploadUrl + $scope.selectedCatalog + "&id=" + $scope.selectedCustomerId + "&title=" + $scope.myFile.name;
 
-   		console.log("URI is: ", uploadUrl);
-		fileUpload.uploadFileToUrl(file, uploadUrl);
+   			console.log("URI is: ", uploadUrl);
+			fileUpload.uploadFileToUrl(file, uploadUrl);
+		}
 	};
 }]);
 
@@ -273,6 +277,55 @@ app.service('fileUpload', ['$http','$location', function ($http, $location) {
 
 
 
+
+// ***************************************************************************************************
+//
+// AngularJS Controller ----	LoginCtrl
+//
+// ***************************************************************************************************
+
+app.controller('SignupCtrl', function($scope, $location, $http, $cookies) {
+/*	var checkCookie = $cookies.get('auth_cookie');
+		console.log("$cookie user_info: ", $cookies.get('user_info'));
+		
+
+	if( checkCookie == null ){
+		console.log("User is not logged in yet.");
+	}else{
+		console.log("User is looged in!!");
+		console.log("$cookie auth_cookie: ", $cookies.get('auth_cookie'));
+		console.log("$cookie user_info: ", $cookies.get('user_info'));
+	}*/
+
+   $scope.signUp = function() {
+        var signupURL = "http://127.0.0.1:9999/api/accounts/create";
+		var role = 1;
+		//var authdata = Base64.encode($scope.login.UserName + ':' + $scope.login.PWD);
+
+		$scope.signup.Role = 1;
+		$scope.signup.PID = 2;
+		console.log($scope.signup);
+		console.log(signupURL);
+
+
+   	    $http.post(signupURL, $scope.signup) 
+   	   		.then(function(response) { 
+   	        	console.log("Sign up successful.");
+				$location.path("/success");
+
+       		})
+	   		.catch(function(response){
+			   console.log("Sign up unsuccessful.");
+				$location.path("/failed");
+	   		});
+			
+   }
+      
+   $scope.resetLoginForm = function(){
+		$scope.login = null;
+   }
+
+});
 
 
 
