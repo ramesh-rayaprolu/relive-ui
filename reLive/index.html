@@ -7,17 +7,23 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+	<!-- AngularJS Code-->
+	<script src="js/wow.min.js"></script>
+
+	<!-- AngularJS Libraries -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-route.min.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular-cookies.js" type="text/javascript"></script>
 
+	<!-- CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
     <link rel="stylesheet" href="css/stlye.css">
     <link rel="stylesheet" href="font-awesome-4.7.0/css/font-awesome.min.css">
     <link rel="stylesheet" href="css/animate.css">
-
-
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-
+    <link rel="stylesheet" href="css/signup.css">
+    <link rel="stylesheet" href="css/contacts.css">
+    <link rel="stylesheet" href="css/client.css">
 </head>
 
 <body>
@@ -30,104 +36,240 @@
 		<ng-view></ng-view>
 	</div>
 
-    <!--Navigation
-     <div id="header" class="header">
-        <div class="container">
-            <div class="row">
-                <div class="col-lg-6 col-md-6 wow lightSpeedIn">
-                <h1>A personalized Cloud Video solution</h1>
-                <p>
-                    Personal videos have become an essential part of life, especially if they are pictured by professionals on one’s special events and/or occasions. Most of the time, users intend to keep all such videos stored in physical devices and keep them safe. However, fact is that no physical device can last long enough. Some wear out while some may be lost when not in use.</p>
-                    <button class="btn btn-lg btn-primary">Subscribe Now</button>
-                </div>
-                <div class="col-lg-6 col-md-6">
-
-                </div>
-            </div>
-         </div>
-    </div>
--->
-    <!--End Header-->
-
-
-
-<script src="js/wow.min.js"></script>
 <script>
-     new WOW().init();
+new WOW().init();
 
-	// jQuery function to load the navigation bar
-    $(function(){
-		$("#navigation-bar-placeholder").load("navigation.html");
-		});
-
-	// ANGULARJS SHIT
-	var app = angular.module("mainApp", ["ngRoute"]);
-	app.config(function($routeProvider) {
-				$routeProvider
-				.when("/", {
-						templateUrl : "./home.html"
-						})
-				.when("/services", {
-						templateUrl : "./services.html"
-						})
-				.when("/pricing", {
-						templateUrl : "./pricing.html"
-						})
-				.when("/team", {
-						templateUrl : "./team.html"
-						})
-				.when("/clients", {
-						templateUrl : "./clients.html"
-						})
-				.when("/contacts", {
-						templateUrl : "./contacts.html"
-						})
-				.when("/signin", {
-						templateUrl : "./signin.html",
-						controller: "LoginCtrl"
-						})
-				.when("/signup", {
-						templateUrl : "./signup.html"
-						})
-				});
-
-
-
-app.controller('LoginCtrl', function($scope, $location, $rootScope, $http) {
-    var vm = this;
-
-    vm.handleSubmit = handleSubmit;
-    vm.resetLoginForm = resetLoginForm;
-
-    $rootScope.isAuthorized = false;
-
-   function handleSubmit() {
-//       var login = $rootScope.APIServerAddress + "accounts/login";
-         var login = "http://127.0.0.1:9999/api/accounts/login";
-  
-
-       $http.post(login, $scope.login) 
-      .then(function(response) { 
-            console.log("Login successful.");
-
-			if(response.data){
-					console.log("The response is: ", response.data);
-			}
-            $rootScope.isAuthorized = true;
-
-       })
-	   .catch(function(response){
-			   console.log("Login unsuccessful.");
-	   });
-      }
-       
-    function resetLoginForm(){
-		$scope.login = null;
-    }
-
+// jQuery function to load the navigation bar
+$(function(){
+	$("#navigation-bar-placeholder").load("navigation.html");
 });
 
 
+// ***************************************************************************************************
+var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f<e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n>>2;o=(n&3)<<4|r>>4;u=(r&15)<<2|i>>6;a=i&63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9+/=]/g,"");while(f<e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s<<2|o>>4;r=(o&15)<<4|u>>2;i=(u&3)<<6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/rn/g,"n");var t="";for(var n=0;n<e.length;n++){var r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r)}else if(r>127&&r<2048){t+=String.fromCharCode(r>>6|192);t+=String.fromCharCode(r&63|128)}else{t+=String.fromCharCode(r>>12|224);t+=String.fromCharCode(r>>6&63|128);t+=String.fromCharCode(r&63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n<e.length){r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r);n++}else if(r>191&&r<224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&31)<<6|c2&63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&15)<<12|(c2&63)<<6|c3&63);n+=3}}return t}}
+
+
+// ***************************************************************************************************
+//
+// AngularJS Controller ----	Route
+//
+// ***************************************************************************************************
+
+var app = angular.module("mainApp", ["ngRoute", "ngCookies"]);
+
+app.config(function($routeProvider) {
+			$routeProvider
+			.when("/", {
+					templateUrl : "./home.html"
+					})
+			.when("/services", {
+					templateUrl : "./services.html"
+					})
+			.when("/pricing", {
+					templateUrl : "./pricing.html"
+					})
+			.when("/team", {
+					templateUrl : "./team.html"
+					})
+			.when("/clients", {
+					templateUrl : "./clients.html",
+					controller: "ClientCtrl"
+					})
+			.when("/contacts", {
+					templateUrl : "./contacts.html"
+					})
+			.when("/signin", {
+					templateUrl : "./signin.html",
+					controller: "LoginCtrl"
+					})
+			.when("/signup", {
+					templateUrl : "./signup.html"
+					})
+			.when("/upload", {
+					templateUrl : "./upload.html"
+					})
+			.when("/success", {
+					templateUrl : "./success.html"
+					})
+			.when("/failed", {
+					templateUrl : "./failed.html"
+					})
+
+			});
+
+// ***************************************************************************************************
+//
+// AngularJS Controller ----	LoginCtrl
+//
+// ***************************************************************************************************
+
+app.controller('LoginCtrl', function($scope, $location, $http, $cookies) {
+	var checkCookie = $cookies.get('auth_cookie');
+		console.log("$cookie user_info: ", $cookies.get('user_info'));
+		
+
+	if( checkCookie == null ){
+		console.log("User is not logged in yet.");
+	}else{
+		console.log("User is looged in!!");
+		console.log("$cookie auth_cookie: ", $cookies.get('auth_cookie'));
+		console.log("$cookie user_info: ", $cookies.get('user_info'));
+	}
+
+   $scope.handleSubmit = function() {
+        var login = "http://127.0.0.1:9999/api/accounts/login";
+		var authdata = Base64.encode($scope.login.UserName + ':' + $scope.login.PWD);
+
+		console.log(authdata);
+		console.log($scope.login.UserName);
+		console.log($scope.login.PWD);
+
+		var now = new Date();
+		now.setMinutes(now.getMinutes()+2);
+		//$cookies.put('auth_cookie', authdata, {expires: now});
+		console.log("now: ", now);
+
+   	    $http.post(login, $scope.login) 
+   	   		.then(function(response) { 
+   	        	console.log("Login successful.");
+
+				if(response.data){
+					$cookies.put('auth_cookie', authdata, {expires: now});
+					$cookies.put('user_info', JSON.stringify(response.data), {expires: now});
+				}
+
+       		})
+	   		.catch(function(response){
+			   console.log("Login unsuccessful.");
+	   		});
+   }
+       
+   $scope.resetLoginForm = function(){
+		$scope.login = null;
+   }
+
+});
+
+// ***************************************************************************************************
+//
+// AngularJS Controller ----	ClientCtrl
+//
+// ***************************************************************************************************
+
+app.controller('ClientCtrl', function($scope, $cookies){
+
+});
+
+// ***************************************************************************************************
+//
+// AngularJS Controller ---- 	UploadCtrl	
+//
+// ***************************************************************************************************
+
+app.controller('UploadCtrl', ['$scope', 'fileUpload', '$location','$http','$cookies', function($scope, fileUpload, $location, $http, $cookies){
+
+	// ---- VARIABLE STUFF ----
+	$scope.customers = [];
+	$scope.selectedCustomerId = null;
+	$scope.selectedCatalog = null;
+	$scope.existingCustomers = null;
+	$scope.catalog = ["Wedding","Birthday","Movie","Other"];
+	$scope.userPid = 0;
+
+	if( $cookies.get('user_info') != null){
+		$scope.userInfo = JSON.parse($cookies.get('user_info'));
+		$scope.userPid = $scope.userInfo.PID;
+	}else{
+		$scope.userInfo = null;
+	}
+
+	var getCustomersUrl = "http://localhost:9999/api/accounts/search?id=" + $scope.userPid;
+	var uploadUrl = "http://localhost:9999/api/media/store?catalog=";
+
+	console.log("getCustomersUrl: ", getCustomersUrl);
+
+	// ---- GET EXISTING CUSTOMERS FOR DROPDOWN ----
+
+    $http.get(getCustomersUrl) 
+	   .then(function(response) { 
+			if(response.data){
+				$scope.customers = response.data;
+				console.log("customers: ", $scope.customers);
+			}else{
+				console.log("no customers");
+			}
+	    })
+	   .catch(function(response){
+		   console.log("No existing customers.");
+   });
+
+	console.log("is httpd get getting called?");
+
+
+	// ---- FUNCTIONS ----
+	$scope.selectCustomer = function() {
+		$scope.selectedCustomerId = $scope.existingCustomers.ID;	
+		console.log("selected customer id: ", $scope.selectedCustomerId);
+	};
+
+	$scope.selectCatalog = function() {
+		$scope.selectedCatalog = $scope.availableCatalogs;
+		console.log("selected catalog: ", $scope.selectedCatalog);
+	};
+
+	$scope.uploadFile = function(){
+		var file = $scope.myFile;
+
+		console.log('file is ' );
+		console.log("File name is: ", $scope.myFile.name);
+		console.dir(file);
+
+		//var uploadUrl = "http://localhost:9999/api/media/store?catalog=test&id=1&title=" + $scope.myFile.name;
+		uploadUrl = uploadUrl + $scope.selectedCatalog + "&id=" + $scope.selectedCustomerId + "&title=" + $scope.myFile.name;
+
+   		console.log("URI is: ", uploadUrl);
+		fileUpload.uploadFileToUrl(file, uploadUrl);
+	};
+}]);
+
+app.directive('fileModel', ['$parse', function ($parse) {
+				return {
+				restrict: 'A',
+				link: function(scope, element, attrs) {
+				var model = $parse(attrs.fileModel);
+				var modelSetter = model.assign;
+
+				element.bind('change', function(){
+						scope.$apply(function(){
+								modelSetter(scope, element[0].files[0]);
+								});
+						});
+				}
+				};
+				}]);
+
+
+app.service('fileUpload', ['$http','$location', function ($http, $location) {
+				this.uploadFileToUrl = function(file, uploadUrl){
+				var fd = new FormData();
+				fd.append('file', file);
+				$http.post(uploadUrl, fd, {
+						transformRequest: angular.identity,
+						headers: {'Content-Type': undefined}
+						})
+				.success(function(){
+						$location.path('/success');
+						})
+				.error(function(){
+						$location.path('/failed');
+						});
+				}
+				}]);
+// ***************************************************************************************************
+//
+// AngularJS Controller ----	LogoutCtrl
+//
+// ***************************************************************************************************
 
 
 
@@ -136,12 +278,7 @@ app.controller('LoginCtrl', function($scope, $location, $rootScope, $http) {
 
 
 
-
-
-
-
-
-
+// ***************************************************************************************************
 </script>
 </body>
 </html>

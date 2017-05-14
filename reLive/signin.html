@@ -1,5 +1,5 @@
 	<div class="container">
-    <div id="login" ng-controller="LoginCtrl as vm" id="loginform" class="loginForm">
+    <div id="login" ng-controller="LoginCtrl" id="loginform" class="loginForm">
         <h4>Login Page</h4>
     <form class="form-horizontal">
     <div class="form-group col-lg-9">
@@ -22,8 +22,8 @@
         
          <div class="form-group col-xs-9">
         <div class="col-sm-offset-2 col-sm-10">
-            <button type="submit" class="btn btn-primary" ng-click="vm.resetLoginForm()">Reset</button>
-            <button type="submit" class="btn btn-primary" ng-click="vm.handleSubmit()">Login</button>
+            <button type="submit" class="btn btn-primary" ng-click="resetLoginForm()">Reset</button>
+            <button type="submit" class="btn btn-primary" ng-click="handleSubmit()">Login</button>
         </div>
     </div>
         </form>
