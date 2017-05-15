@@ -65,7 +65,7 @@ var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456
 
 var app = angular.module("mainApp", ["ngRoute", "ngCookies"]);
 
-app.config(function($routeProvider) {
+app.config(function($routeProvider, $sceProvider) {
 			$routeProvider
 			.when("/", {
 					templateUrl : "./home.html"
@@ -107,9 +107,12 @@ app.config(function($routeProvider) {
 					})
 			.when("/customer_dashboard", {
 					templateUrl : "./customer_dashboard.html"
-					})
+					});
 
-			});
+		$sceProvider.enabled(false);
+			}
+
+	);
 
 // ***************************************************************************************************
 //
@@ -172,7 +175,7 @@ app.controller('LoginCtrl', function($scope, $location, $http, $cookies) {
 //
 // ***************************************************************************************************
 
-app.controller('ClientCtrl', function($scope, $cookies){
+app.controller('ClientCtrl', function($scope, $rootScope){
 
 });
 
@@ -349,7 +352,7 @@ app.controller('SignupCtrl', function($scope, $location, $http, $cookies) {
 //
 // ***************************************************************************************************
 
-app.controller('CustDashCtrl', function($scope, $location, $http, $cookies) {
+app.controller('CustDashCtrl', function($scope, $location, $http, $cookies, $rootScope) {
 
 //	$scope.videoList = [{"Title":"Title1", "URL":"url1.com"},{"Title":"Title2", "URL":"url2.com"}];
 
@@ -398,6 +401,14 @@ app.controller('CustDashCtrl', function($scope, $location, $http, $cookies) {
 				console.log("Debug: something has gone wrong while fetching customer videos");
 	   });
 
+
+	// GET THE VIDEO URL AND GO NEXT TO STREAMING
+	$scope.streamVideo= function(URL,videoTitle){
+		$rootScope.globalUrl = URL;
+		$rootScope.globalTitle = videoTitle;
+		console.log("Debug: $rootScope.globalUrl = ", $rootScope.globalUrl);
+		$location.path('/stream');
+	}
 });
 
 // ***************************************************************************************************
@@ -406,63 +417,28 @@ app.controller('CustDashCtrl', function($scope, $location, $http, $cookies) {
 //
 // ***************************************************************************************************
 
-app.controller('StreamCtrl', function($scope, $location, $http, $cookies, $sce) {
+app.controller('StreamCtrl', function($scope, $location, $http, $cookies, $timeout, $rootScope) {
 
-		console.log("a;lskjdfalksdjfkasdjfklasjdf");
+		console.log("Debug: entering StreamCtrl");
+		console.log("rootscope: ", $rootScope.globalUrl);
+		$scope.videoTitle = $rootScope.globalTitle;
 
-		var player = videojs('example-video');
-		player.play();
-
-		var videoSourceVar = "http://localhost:9999/api/media/play/8/dronedog/dronedog.m3u8";
-		$scope.videoUrl = "http://localhost:9999/api/media/play/8/dronedog/dronedog.m3u8";
-		console.log("$scope video source: ", $scope.videoSource);
-
-
-		$scope.sources=[{path: "http://localhost:9999/api/media/play/8/dronedog/dronedog.m3u8", type:"application/x-mpegURL"}]; 
-		console.log("$scope video source: ", $scope.sources);
-
-
-
-/*
-		$scope.trustSrc = function(videoSourceVar) {
-		    return $sce.trustAsResourceUrl(videoSourceVar);
-		}
-		console.log("trustsrc: ", $scope.trustSrc);
-
-		$scope.movie = {src:"http://localhost:9999/api/media/play/8/dronedog/dronedog.m3u8", title:"Egghead.io AngularJS Binding"};
-*/
-
-
-
-		$scope.sources = [
-		{src: $sce.trustAsResourceUrl("http://localhost:9999/api/media/play/8/dronedog/dronedog.m3u8"), type: "application/x-mpegURL"}
-		]
-
-		$scope.changeSource = function() {
-				$scope.sources = [
-				{src: $sce.trustAsResourceUrl("http://localhost:9999/api/media/play/8/dronedog/dronedog.m3u8"), type: "application/x-mpegURL"}
-				];
-		};
-
+		// MUST WAIT 1 SECOND TO RETRIEVE ROOTSCOPE URL
+		$timeout(function () {
+			var player = videojs('example-video');
+			player.play();
+		}, 1000);
 
 });
 
-app.directive('html5vfix', function() {
+// WORK AROUND FOR STREAMING VIDEO 
+app.directive('streamVideoDir', function($rootScope){
+
 	return {
-		restrict: 'C',
-		link: function(scope, element, attr) {
-		attr.$set('src', attr.vsrc);
-		}
-	}
+		restrict: 'E',
+		template: '<video id=example-video width=960 height=400 class="video-js vjs-default-skin" controls><source src="{{globalUrl}}" type="application/x-mpegURL"></video>'
+	};
 });
-/*
-	app.filter("trustUrl", ['$sce', function ($sce) {
-		return function (videoSourceVar) {
-		return $sce.trustAsResourceUrl(videoSourceVar);
-		};
-	}]);
-*/
-
 // ***************************************************************************************************
 </script>
 </body>
