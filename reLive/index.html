@@ -28,6 +28,7 @@
     <link rel="stylesheet" href="css/signup.css">
     <link rel="stylesheet" href="css/contacts.css">
     <link rel="stylesheet" href="css/client.css">
+    <link rel="stylesheet" href="css/calltoaction.css">
 
 
 	<link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet">
@@ -118,15 +119,12 @@ app.config(function($routeProvider) {
 
 app.controller('LoginCtrl', function($scope, $location, $http, $cookies) {
 	var checkCookie = $cookies.get('auth_cookie');
-		console.log("$cookie user_info: ", $cookies.get('user_info'));
-		
 
 	if( checkCookie == null ){
 		console.log("User is not logged in yet.");
 	}else{
-		console.log("User is looged in!!");
-		console.log("$cookie auth_cookie: ", $cookies.get('auth_cookie'));
-		console.log("$cookie user_info: ", $cookies.get('user_info'));
+		console.log("Debug: User is already logged in.");
+		console.log("Debug: $cookies(user_info) = ", $cookies.get('user_info'));
 	}
 
    $scope.handleSubmit = function() {
@@ -137,10 +135,9 @@ app.controller('LoginCtrl', function($scope, $location, $http, $cookies) {
 		console.log($scope.login.UserName);
 		console.log($scope.login.PWD);
 
+		// SET THE EXPIRATION TIME FOR THE LOGGED IN USER
 		var now = new Date();
 		now.setMinutes(now.getMinutes()+2);
-		//$cookies.put('auth_cookie', authdata, {expires: now});
-		console.log("now: ", now);
 
    	    $http.post(login, $scope.login) 
    	   		.then(function(response) { 
@@ -149,6 +146,12 @@ app.controller('LoginCtrl', function($scope, $location, $http, $cookies) {
 				if(response.data){
 					$cookies.put('auth_cookie', authdata, {expires: now});
 					$cookies.put('user_info', JSON.stringify(response.data), {expires: now});
+				}
+
+				if(response.data.Role = 3){
+					$location.path('/customer_dashboard');
+				}else{
+					$location.path('/success');
 				}
 
        		})
@@ -342,61 +345,58 @@ app.controller('SignupCtrl', function($scope, $location, $http, $cookies) {
 
 // ***************************************************************************************************
 //
-// AngularJS Controller ----	ListCtrl
+// AngularJS Controller ----	CustDashCtrl
 //
 // ***************************************************************************************************
 
-app.controller('ListCtrl', function($scope, $location, $http, $cookies) {
+app.controller('CustDashCtrl', function($scope, $location, $http, $cookies) {
 
-	$scope.customers = ["Wedding","Birthday","Movie","Other"];
+//	$scope.videoList = [{"Title":"Title1", "URL":"url1.com"},{"Title":"Title2", "URL":"url2.com"}];
 
-$scope.data = {
-	singleSelect: null,
-	multipleSelect: [],
-	option1: 'option-1'
-};
+	var userRole = 0;
+	var customerID = 0;
+	var searchMediaUrl = "http://localhost:9999/api/media/search?id="
+	$scope.user_info = null;
+	$scope.FirstName = null;
+	$scope.videoList = [];
 
-/*	var checkCookie = $cookies.get('auth_cookie');
-		console.log("$cookie user_info: ", $cookies.get('user_info'));
-		
+				
+	// CHECK AND SEE IF USER IS LOGGED IN			
+	var checkCookie = $cookies.get('auth_cookie');
 
 	if( checkCookie == null ){
 		console.log("User is not logged in yet.");
+		$location.path("/signin");
 	}else{
-		console.log("User is looged in!!");
-		console.log("$cookie auth_cookie: ", $cookies.get('auth_cookie'));
 		console.log("$cookie user_info: ", $cookies.get('user_info'));
-	}*/
+		$scope.user_info = JSON.parse($cookies.get('user_info'));
+	}
 
-				/*
-   $scope.signUp = function() {
-        var signupURL = "http://127.0.0.1:9999/api/accounts/create";
-		var role = 1;
-		//var authdata = Base64.encode($scope.login.UserName + ':' + $scope.login.PWD);
+	// GET THE ROLE AND ID
+	customerID = $scope.user_info.ID;
+	userRole = $scope.user_info.Role;
+	$scope.FirstName = $scope.user_info.FirstName;
 
-		$scope.signup.Role = 1;
-		$scope.signup.PID = 2;
-		console.log($scope.signup);
-		console.log(signupURL);
+	// MAKE SURE ROLE IS CUSTOMER, THEN CONSTRUCT API AND CALL FOR LIST OF VIDEOS
+	if(userRole == 3){
+			searchMediaUrl = searchMediaUrl + customerID;
+			console.log("Debug: searchMediaUrl = ", searchMediaUrl);
+	}else{
+			console.log("Debug: userRole is not a customer, redirect somewhere else then...");
+	}
 
-
-   	    $http.post(signupURL, $scope.signup) 
-   	   		.then(function(response) { 
-   	        	console.log("Sign up successful.");
-				$location.path("/success");
-
-       		})
-	   		.catch(function(response){
-			   console.log("Sign up unsuccessful.");
-				$location.path("/failed");
-	   		});
-			
-   }
-      
-   $scope.resetLoginForm = function(){
-		$scope.login = null;
-   }
-*/
+   	$http.get(searchMediaUrl) 
+   		.then(function(response) { 
+			if(response.data){
+				$scope.videoList = response.data;
+				console.log("Debug: videoList = ", $scope.videoList);
+			}else{
+				console.log("Debug: customer has no videos");
+			}
+       	})
+	   	.catch(function(response){
+				console.log("Debug: something has gone wrong while fetching customer videos");
+	   });
 
 });
 
