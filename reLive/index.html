@@ -16,9 +16,8 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular-cookies.js" type="text/javascript"></script>
 
-
-	    <script src="https://unpkg.com/video.js/dist/video.js"></script>
-	    <script src="https://unpkg.com/videojs-contrib-hls/dist/videojs-contrib-hls.js"></script>
+    <script src="https://unpkg.com/video.js/dist/video.js"></script>
+    <script src="https://unpkg.com/videojs-contrib-hls/dist/videojs-contrib-hls.js"></script>
 
 	<!-- CSS -->
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
@@ -29,8 +28,8 @@
     <link rel="stylesheet" href="css/contacts.css">
     <link rel="stylesheet" href="css/client.css">
     <link rel="stylesheet" href="css/calltoaction.css">
-
-
+    <link rel="stylesheet" href="css/partner.css">
+    <link rel="stylesheet" href="css/admin.css">
 	<link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet">
 </head>
 
@@ -107,7 +106,14 @@ app.config(function($routeProvider, $sceProvider) {
 					})
 			.when("/customer_dashboard", {
 					templateUrl : "./customer_dashboard.html"
-					});
+					})
+			.when("/partner_dashboard", {
+					templateUrl : "./partner_dashboard.html"
+					})
+			.when("/admin_dashboard", {
+					templateUrl : "./admin_dashboard.html"
+					})
+			;
 
 		$sceProvider.enabled(false);
 			}
@@ -151,12 +157,15 @@ app.controller('LoginCtrl', function($scope, $location, $http, $cookies) {
 					$cookies.put('user_info', JSON.stringify(response.data), {expires: now});
 				}
 
-				if(response.data.Role = 3){
+				if(response.data.Role == 3){
 					$location.path('/customer_dashboard');
+					console.log("Debug: response.data.Role = ", response.data.Role);
+				}else if(response.data.Role == 2){
+					$location.path('/admin_dashboard');
+					console.log("Debug: response.data.Role = ", response.data.Role);
 				}else{
 					$location.path('/success');
 				}
-
        		})
 	   		.catch(function(response){
 			   console.log("Login unsuccessful.");
@@ -411,6 +420,92 @@ app.controller('CustDashCtrl', function($scope, $location, $http, $cookies, $roo
 	}
 });
 
+
+
+// ***************************************************************************************************
+//
+// AngularJS Controller ----	AdminDashCtrl
+//
+// ***************************************************************************************************
+
+app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $rootScope) {
+
+//	$scope.videoList = [{"Title":"Title1", "URL":"url1.com"},{"Title":"Title2", "URL":"url2.com"}];
+
+	var userRole = 0;
+	var customerID = 0;
+	var searchMediaUrl = "http://localhost:9999/api/media/search?id="
+	var searchCustomersUrl = "http://localhost:9999/api/accounts/search?id=";
+	$scope.user_info = null;
+	$scope.FirstName = null;
+	$scope.userPid = null;
+	$scope.customerList = [];
+
+				
+	// CHECK AND SEE IF USER IS LOGGED IN			
+	var checkCookie = $cookies.get('auth_cookie');
+
+	if( checkCookie == null ){
+		console.log("User is not logged in yet.");
+		$location.path("/signin");
+	}else{
+		console.log("$cookie user_info: ", $cookies.get('user_info'));
+		$scope.user_info = JSON.parse($cookies.get('user_info'));
+	}
+
+	// GET THE ROLE AND ID
+	customerID = $scope.user_info.ID;
+	userRole = $scope.user_info.Role;
+	$scope.FirstName = $scope.user_info.FirstName;
+	$scope.userPid = $scope.user_info.PID;
+
+	// MAKE SURE ROLE IS ADMIN, THEN CONSTRUCT API AND CALL FOR LIST OF CUSTOMERS
+	if(userRole == 2){
+			searchCustomersUrl = searchCustomersUrl + $scope.userPid;
+			console.log("Debug: searchCustomersUrl = ", searchCustomersUrl);
+	}else{
+			console.log("Debug: userRole is not an admin, redirect somewhere else then...");
+	}
+
+   	$http.get(searchCustomersUrl) 
+   		.then(function(response) { 
+			if(response.data){
+				$scope.customerList = response.data;
+				console.log("Debug: customerList = ", $scope.customerList);
+			}else{
+				console.log("Debug: admin has no customers.");
+			}
+       	})
+	   	.catch(function(response){
+				console.log("Debug: something has gone wrong while fetching list of customers");
+	   });
+
+	// GET THE COUNT OF VIDEOS FOR EACH CUSTOMER
+	$scope.getVideoCount = function(custId){
+		var videoCount = 0;
+		var tempSearchMediaUrl = "http://localhost:9999/api/media/search?id=" + custId;
+		console.log("Debug: tempSearchMediaUrl = ", tempSearchMediaUrl);
+
+		$http.get(tempSearchMediaUrl)
+			.then(function(response){
+				if(response.data){
+					videoCount = response.data.length;
+					console.log("Debug: response.data = ", response.data.length);
+					console.log("Debug: number of videos for this customerId " + custId + " is = ", videoCount);
+				}else{
+					console.log("Debug: number of videos for this customerId is 0");
+				}
+			})
+			.catch(function(response){
+				console.log("Debug: something went wrong in searching for number of videos");
+			})
+		;
+
+		return null;
+	}
+});
+
+
 // ***************************************************************************************************
 //
 // AngularJS Controller ----	StreamCtrl
@@ -439,6 +534,9 @@ app.directive('streamVideoDir', function($rootScope){
 		template: '<video id=example-video width=960 height=400 class="video-js vjs-default-skin" controls><source src="{{globalUrl}}" type="application/x-mpegURL"></video>'
 	};
 });
+
+
+
 // ***************************************************************************************************
 </script>
 </body>

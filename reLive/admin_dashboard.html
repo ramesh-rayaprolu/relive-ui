@@ -1,4 +1,4 @@
-<div class="content">
+<div class="content" ng-controller="AdminDashCtrl">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
@@ -23,23 +23,9 @@
                                     	
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                        	<td>1</td>
-                                        	<td>Dakota Rice</td>
-                                       
-                                        </tr>
-                                        <tr>
-                                        	<td>2</td>
-                                        	<td>Minerva Hooper</td>
-                                        	
-                                        </tr>
-                                        <tr>
-                                        	<td>3</td>
-                                        	<td>Sage Rodriguez</td>
-                                        	
-                                        <tr>
-                                        	<td>4</td>
-                                        	<td>Philip Chaney</td>
+										<tr ng-repeat="customer in customerList">
+											<td>{{customer.UserName}} </td>
+											<td>{{ getVideoCount(customer.ID) }}</td>
                                        
                                         </tr>
                                     </tbody>
