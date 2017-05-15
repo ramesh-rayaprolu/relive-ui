@@ -14,6 +14,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.5.8/angular.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/angular.js/1.6.1/angular-route.min.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-cookie/1.4.1/jquery.cookie.js" type="text/javascript"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.4/angular-cookies.js" type="text/javascript"></script>
 
     <script src="https://unpkg.com/video.js/dist/video.js"></script>
@@ -47,10 +48,27 @@
 new WOW().init();
 
 // jQuery function to load the navigation bar
-$(function(){
-	$("#navigation-bar-placeholder").load("navigation.html");
-});
+function checkLoginStatusNav(){
+		$(function(){
+			//$("#navigation-bar-placeholder").load("navigation.html");
+			console.log($.cookie("auth_cookie"));
+			console.log($.cookie("role"));
 
+			if($.cookie("auth_cookie") == null || $.cookie("user_info") == null){
+				$("#navigation-bar-placeholder").load("navigation_out.html");
+			}else if($.cookie("role") == 1){
+				$("#navigation-bar-placeholder").load("navigation_partner.html");
+			}else if($.cookie("role") == 2){
+				$("#navigation-bar-placeholder").load("navigation_admin.html");
+			}else if($.cookie("role") == 3){
+				$("#navigation-bar-placeholder").load("navigation_customer.html");
+			}else{
+				$("#navigation-bar-placeholder").load("navigation_out.html");
+			}
+		});
+}
+
+checkLoginStatusNav();
 
 // ***************************************************************************************************
 var Base64={_keyStr:"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",encode:function(e){var t="";var n,r,i,s,o,u,a;var f=0;e=Base64._utf8_encode(e);while(f<e.length){n=e.charCodeAt(f++);r=e.charCodeAt(f++);i=e.charCodeAt(f++);s=n>>2;o=(n&3)<<4|r>>4;u=(r&15)<<2|i>>6;a=i&63;if(isNaN(r)){u=a=64}else if(isNaN(i)){a=64}t=t+this._keyStr.charAt(s)+this._keyStr.charAt(o)+this._keyStr.charAt(u)+this._keyStr.charAt(a)}return t},decode:function(e){var t="";var n,r,i;var s,o,u,a;var f=0;e=e.replace(/[^A-Za-z0-9+/=]/g,"");while(f<e.length){s=this._keyStr.indexOf(e.charAt(f++));o=this._keyStr.indexOf(e.charAt(f++));u=this._keyStr.indexOf(e.charAt(f++));a=this._keyStr.indexOf(e.charAt(f++));n=s<<2|o>>4;r=(o&15)<<4|u>>2;i=(u&3)<<6|a;t=t+String.fromCharCode(n);if(u!=64){t=t+String.fromCharCode(r)}if(a!=64){t=t+String.fromCharCode(i)}}t=Base64._utf8_decode(t);return t},_utf8_encode:function(e){e=e.replace(/rn/g,"n");var t="";for(var n=0;n<e.length;n++){var r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r)}else if(r>127&&r<2048){t+=String.fromCharCode(r>>6|192);t+=String.fromCharCode(r&63|128)}else{t+=String.fromCharCode(r>>12|224);t+=String.fromCharCode(r>>6&63|128);t+=String.fromCharCode(r&63|128)}}return t},_utf8_decode:function(e){var t="";var n=0;var r=c1=c2=0;while(n<e.length){r=e.charCodeAt(n);if(r<128){t+=String.fromCharCode(r);n++}else if(r>191&&r<224){c2=e.charCodeAt(n+1);t+=String.fromCharCode((r&31)<<6|c2&63);n+=2}else{c2=e.charCodeAt(n+1);c3=e.charCodeAt(n+2);t+=String.fromCharCode((r&15)<<12|(c2&63)<<6|c3&63);n+=3}}return t}}
@@ -113,6 +131,9 @@ app.config(function($routeProvider, $sceProvider) {
 			.when("/admin_dashboard", {
 					templateUrl : "./admin_dashboard.html"
 					})
+			.when("/signout", {
+					templateUrl : "./signout.html"
+					})
 			;
 
 		$sceProvider.enabled(false);
@@ -127,6 +148,8 @@ app.config(function($routeProvider, $sceProvider) {
 // ***************************************************************************************************
 
 app.controller('LoginCtrl', function($scope, $location, $http, $cookies) {
+	checkLoginStatusNav();
+
 	var checkCookie = $cookies.get('auth_cookie');
 
 	if( checkCookie == null ){
@@ -155,6 +178,8 @@ app.controller('LoginCtrl', function($scope, $location, $http, $cookies) {
 				if(response.data){
 					$cookies.put('auth_cookie', authdata, {expires: now});
 					$cookies.put('user_info', JSON.stringify(response.data), {expires: now});
+					$cookies.put('role', response.data.Role, {expires: now});
+					checkLoginStatusNav();
 				}
 
 				if(response.data.Role == 3){
@@ -185,8 +210,35 @@ app.controller('LoginCtrl', function($scope, $location, $http, $cookies) {
 // ***************************************************************************************************
 
 app.controller('ClientCtrl', function($scope, $rootScope){
-
+	console.log("Client control");
+	checkLoginStatusNav();
 });
+
+// ***************************************************************************************************
+//
+// AngularJS Controller ----	HomeCtrl
+//
+// ***************************************************************************************************
+
+app.controller('HomeCtrl', function($scope, $rootScope){
+	console.log("Home control");
+	checkLoginStatusNav();
+});
+
+
+// ***************************************************************************************************
+//
+// AngularJS Controller ----	NavCtrl
+//
+// ***************************************************************************************************
+
+app.controller('SignoutCtrl', function($scope, $cookies, $location){
+	console.log("Signout control");
+	$cookies.remove("auth_cookie");	
+	$cookies.remove("user_info");	
+	$location.path("/");
+});
+
 
 // ***************************************************************************************************
 //
@@ -195,6 +247,7 @@ app.controller('ClientCtrl', function($scope, $rootScope){
 // ***************************************************************************************************
 
 app.controller('UploadCtrl', ['$scope', 'fileUpload', '$location','$http','$cookies', function($scope, fileUpload, $location, $http, $cookies){
+	checkLoginStatusNav();
 
 	// ---- VARIABLE STUFF ----
 	$scope.customers = [];
@@ -313,6 +366,7 @@ app.service('fileUpload', ['$http','$location', function ($http, $location) {
 // ***************************************************************************************************
 
 app.controller('SignupCtrl', function($scope, $location, $http, $cookies) {
+	checkLoginStatusNav();
 /*	var checkCookie = $cookies.get('auth_cookie');
 		console.log("$cookie user_info: ", $cookies.get('user_info'));
 		
@@ -362,6 +416,7 @@ app.controller('SignupCtrl', function($scope, $location, $http, $cookies) {
 // ***************************************************************************************************
 
 app.controller('CustDashCtrl', function($scope, $location, $http, $cookies, $rootScope) {
+	checkLoginStatusNav();
 
 //	$scope.videoList = [{"Title":"Title1", "URL":"url1.com"},{"Title":"Title2", "URL":"url2.com"}];
 
@@ -428,7 +483,8 @@ app.controller('CustDashCtrl', function($scope, $location, $http, $cookies, $roo
 //
 // ***************************************************************************************************
 
-app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $rootScope) {
+app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $rootScope, $timeout) {
+	checkLoginStatusNav();
 
 //	$scope.videoList = [{"Title":"Title1", "URL":"url1.com"},{"Title":"Title2", "URL":"url2.com"}];
 
@@ -467,10 +523,13 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 			console.log("Debug: userRole is not an admin, redirect somewhere else then...");
 	}
 
+	var cusoomer = [];
    	$http.get(searchCustomersUrl) 
    		.then(function(response) { 
 			if(response.data){
 				$scope.customerList = response.data;
+				cusoomer = response.data;
+				console.log("Debug: csdfadsfustomerList = ", cusoomer);
 				console.log("Debug: customerList = ", $scope.customerList);
 			}else{
 				console.log("Debug: admin has no customers.");
@@ -480,7 +539,56 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 				console.log("Debug: something has gone wrong while fetching list of customers");
 	   });
 
+/*
 	// GET THE COUNT OF VIDEOS FOR EACH CUSTOMER
+	for( var object in cusoomer){
+		//var count = getVideoCount(i.ID);		
+		//i.count = count;
+		//console.log("Debug: i = ", i);
+			console.log("OBJECTTT: ", object);
+			console.log("SLKDFJ:SLDFJSDF::: ", $scope.customerList);
+	} 
+		console.log("SLDKFJJSD ?!?!?! !?DKLFJSKFJ ?!");
+*/
+
+ var getVideoCounter = function(custId){
+		var videoCount = 0;
+		var tempSearchMediaUrl = "http://localhost:9999/api/media/search?id=" + custId;
+		console.log("Debug: tempSearchMediaUrl = ", tempSearchMediaUrl);
+
+		$http.get(tempSearchMediaUrl)
+			.then(function(response){
+				if(response.data){
+					videoCount = response.data.length;
+					console.log("Debug: response.data = ", response.data.length);
+					console.log("Debug: number of videos for this customerId " + custId + " is = ", videoCount);
+				}else{
+					console.log("Debug: number of videos for this customerId is 0");
+				}
+			})
+			.catch(function(response){
+				console.log("Debug: something went wrong in searching for number of videos");
+			})
+		;
+
+		return videoCount;
+	}
+/*
+		// MUST WAIT 1 SECOND TO RETRIEVE THE CUSTOMERS
+		$timeout(function () {
+
+			for(var i=0; i<cusoomer.length; i++){
+				$timeout(function(cusoomer[i]){
+					cusoomer.count = getVideoCounter(cusoomer[i].ID);
+				}, 1000);
+				console.log("my object is: ", cusoomer[i]);
+			}
+
+		}, 1000);
+*/
+$scope.customerList = cusoomer;
+
+	// FUNCTION 
 	$scope.getVideoCount = function(custId){
 		var videoCount = 0;
 		var tempSearchMediaUrl = "http://localhost:9999/api/media/search?id=" + custId;
@@ -501,7 +609,7 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 			})
 		;
 
-		return null;
+		return videoCount;
 	}
 });
 
@@ -513,6 +621,7 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 // ***************************************************************************************************
 
 app.controller('StreamCtrl', function($scope, $location, $http, $cookies, $timeout, $rootScope) {
+	checkLoginStatusNav();
 
 		console.log("Debug: entering StreamCtrl");
 		console.log("rootscope: ", $rootScope.globalUrl);
