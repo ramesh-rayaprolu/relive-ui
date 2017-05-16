@@ -134,6 +134,10 @@ app.config(function($routeProvider, $sceProvider) {
 			.when("/signout", {
 					templateUrl : "./signout.html"
 					})
+			.when("/signupcustomer", {
+                                        templateUrl : "./signupcustomer.html"
+                                        })
+
 			;
 
 		$sceProvider.enabled(false);
@@ -409,6 +413,61 @@ app.controller('SignupCtrl', function($scope, $location, $http, $cookies) {
 
 });
 
+
+
+// ***************************************************************************************************
+//
+// AngularJS Controller ----    SignupCustomerCtrl
+//
+// ***************************************************************************************************
+
+app.controller('SignupCustomerCtrl', function($scope, $location, $http, $cookies) {
+        checkLoginStatusNav();
+/*      var checkCookie = $cookies.get('auth_cookie');
+                console.log("$cookie user_info: ", $cookies.get('user_info'));
+                
+
+        if( checkCookie == null ){
+                console.log("User is not logged in yet.");
+        }else{
+                console.log("User is looged in!!");
+                console.log("$cookie auth_cookie: ", $cookies.get('auth_cookie'));
+                console.log("$cookie user_info: ", $cookies.get('user_info'));
+        }*/
+
+   $scope.signUp = function() {
+        var signupURL = "http://127.0.0.1:9999/api/accounts/create";
+                var role = 1;
+                //var authdata = Base64.encode($scope.login.UserName + ':' + $scope.login.PWD);
+
+                $scope.signup.Role = 3;
+                $scope.signup.PID = 2;
+                console.log($scope.signup);
+                console.log(signupURL);
+
+
+            $http.post(signupURL, $scope.signup) 
+                        .then(function(response) { 
+                        console.log("Sign up successful.");
+                                $location.path("/success");
+
+                })
+                        .catch(function(response){
+                           console.log("Sign up unsuccessful.");
+                                $location.path("/failed");
+                        });
+    }
+       
+    $scope.resetLoginForm = function(){
+                 $scope.login = null;
+    }
+ 
+ });
+
+
+
+
+
 // ***************************************************************************************************
 //
 // AngularJS Controller ----	CustDashCtrl
@@ -498,6 +557,7 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 	$scope.customerList = [];
 
 	$scope.LinkUploadFile = function(){$location.path('/upload')};
+	$scope.LinkAddCustomer = function(){$location.path('/signupcustomer')};
 				
 	// CHECK AND SEE IF USER IS LOGGED IN			
 	var checkCookie = $cookies.get('auth_cookie');
