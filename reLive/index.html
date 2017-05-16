@@ -629,7 +629,7 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 	customerID = $scope.user_info.ID;
 	userRole = $scope.user_info.Role;
 	$scope.FirstName = $scope.user_info.FirstName;
-	$scope.userPid = $scope.user_info.PID;
+	$scope.userPid = $scope.user_info.ID;
 
 	// MAKE SURE ROLE IS ADMIN, THEN CONSTRUCT API AND CALL FOR LIST OF CUSTOMERS
 	if(userRole == 2){
