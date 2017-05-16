@@ -497,6 +497,7 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 	$scope.userPid = null;
 	$scope.customerList = [];
 
+	$scope.LinkUploadFile = function(){$location.path('/upload')};
 				
 	// CHECK AND SEE IF USER IS LOGGED IN			
 	var checkCookie = $cookies.get('auth_cookie');
@@ -517,7 +518,7 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 
 	// MAKE SURE ROLE IS ADMIN, THEN CONSTRUCT API AND CALL FOR LIST OF CUSTOMERS
 	if(userRole == 2){
-			searchCustomersUrl = searchCustomersUrl + $scope.userPid;
+			searchCustomersUrl = searchCustomersUrl + $scope.userPid + "&role=3"; 
 			console.log("Debug: searchCustomersUrl = ", searchCustomersUrl);
 	}else{
 			console.log("Debug: userRole is not an admin, redirect somewhere else then...");
