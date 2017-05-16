@@ -683,6 +683,7 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 	$scope.FirstName = null;
 	$scope.userPid = null;
 	$scope.customerList = [];
+	$scope.adminsList = [];
 
 	$scope.LinkUploadFile = function(){$location.path('/upload')};
 	$scope.LinkAddCustomer = function(){$location.path('/signupcustomer')};
@@ -715,6 +716,21 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 			console.log("Debug: userRole is not an admin, redirect somewhere else then...");
 	}
 
+
+   	$http.get(searchCustomersUrl) 
+   		.then(function(response) { 
+			if(response.data){
+				$scope.customerList = response.data;
+				console.log("Debug: customerList = ", $scope.customerList);
+			}else{
+				console.log("Debug: customer has no videos");
+			}
+       	})
+	   	.catch(function(response){
+				console.log("Debug: something has gone wrong while fetching customer videos");
+	   });
+
+/*
 	var cusoomer = [];
    	$http.get(searchCustomersUrl) 
    		.then(function(response) { 
@@ -780,6 +796,7 @@ $scope.customerList = cusoomer;
 
 		return videoCount;
 	}
+*/
 });
 
 

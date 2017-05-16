@@ -25,24 +25,9 @@
                                     	
                                     </thead>
                                     <tbody>
-                                        <tr>
-                                        	<td>1</td>
-                                        	<td>Dakota Rice</td>
-                                       
-                                        </tr>
-                                        <tr>
-                                        	<td>2</td>
-                                        	<td>Minerva Hooper</td>
-                                        	
-                                        </tr>
-                                        <tr>
-                                        	<td>3</td>
-                                        	<td>Sage Rodriguez</td>
-                                        	
-                                        <tr>
-                                        	<td>4</td>
-                                        	<td>Philip Chaney</td>
-                                       
+                                       	<tr ng-repeat="admin in customerList">
+											<td>{{admin.UserName}} </td>
+											<td>{{admin.MediaCount}}</td>
                                         </tr>
                                     </tbody>
                                 </table>
