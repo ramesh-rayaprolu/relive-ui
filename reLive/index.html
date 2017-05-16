@@ -180,7 +180,7 @@ app.controller('LoginCtrl', function($scope, $location, $http, $cookies) {
 
 		// SET THE EXPIRATION TIME FOR THE LOGGED IN USER
 		var now = new Date();
-		now.setMinutes(now.getMinutes()+2);
+		now.setMinutes(now.getMinutes()+5);
 
    	    $http.post(login, $scope.login) 
    	   		.then(function(response) { 
@@ -199,6 +199,10 @@ app.controller('LoginCtrl', function($scope, $location, $http, $cookies) {
 				}else if(response.data.Role == 2){
 					$location.path('/admin_dashboard');
 					console.log("Debug: response.data.Role = ", response.data.Role);
+				}else if(response.data.Role == 1){
+					$location.path('/partner_dashboard');
+					console.log("Debug: response.data.Role = ", response.data.Role);
+
 				}else{
 					$location.path('/success');
 				}
@@ -270,13 +274,13 @@ app.controller('UploadCtrl', ['$scope', 'fileUpload', '$location','$http','$cook
 
 	if( $cookies.get('user_info') != null){
 		$scope.userInfo = JSON.parse($cookies.get('user_info'));
-		$scope.userPid = $scope.userInfo.PID;
+		$scope.userPid = $scope.userInfo.ID;
 	}else{
 		$location.path("/signin");
 		$scope.userInfo = null;
 	}
 
-	var getCustomersUrl = "http://localhost:9999/api/accounts/search?id=" + $scope.userPid;
+	var getCustomersUrl = "http://localhost:9999/api/accounts/search?id=" + $scope.userPid + "&role=3";
 	var uploadUrl = "http://localhost:9999/api/media/store?catalog=";
 
 	console.log("getCustomersUrl: ", getCustomersUrl);
@@ -354,7 +358,7 @@ app.service('fileUpload', ['$http','$location', function ($http, $location) {
 						headers: {'Content-Type': undefined}
 						})
 				.success(function(){
-						$location.path('/success');
+						$location.path('/admin_dashboard');
 						})
 				.error(function(){
 						$location.path('/failed');
@@ -499,22 +503,6 @@ app.controller('PaymentCtrl', function($scope, $location, $http, $cookies) {
 
 
 
-
-
-
-
-/*
-   	    $http.post(signupURL, $scope.signup) 
-   	   		.then(function(response) { 
-   	        	console.log("Sign up successful.");
-				$location.path("/success");
-
-       		})
-	   		.catch(function(response){
-			   console.log("Sign up unsuccessful.");
-				$location.path("/failed");
-	   		});
-*/			
    }
 });
 
@@ -543,7 +531,7 @@ app.controller('SignupCustomerCtrl', function($scope, $location, $http, $cookies
             $http.post(signupURL, $scope.signup) 
                         .then(function(response) { 
                         console.log("Sign up successful.");
-                                $location.path("/success");
+                                $location.path("/admin_dashboard");
 
                 })
                         .catch(function(response){
@@ -569,7 +557,10 @@ app.controller('SignupCustomerCtrl', function($scope, $location, $http, $cookies
 app.controller('SignupAdminCtrl', function($scope, $location, $http, $cookies) {
         checkLoginStatusNav();
 
-$scope.user_info = JSON.parse($cookies.get("user_info"));
+	$scope.user_info = JSON.parse($cookies.get("user_info"));
+	var loggedInRole = $scope.user_info.Role;
+	console.log("Debug: loggedInRole = ", loggedInRole);
+
    $scope.signUp = function() {
         var signupURL = "http://127.0.0.1:9999/api/accounts/create";
                 var role = 1;
@@ -584,7 +575,13 @@ $scope.user_info = JSON.parse($cookies.get("user_info"));
             $http.post(signupURL, $scope.signup) 
                         .then(function(response) { 
                         console.log("Sign up successful.");
-                                $location.path("/success");
+						if(loggedInRole == 1){
+                             $location.path("/partner_dashboard");
+							 }else if(loggedInRole == 2){
+							 $location.path("/admin_dashboard");
+							 }else{
+							 $location.path("/success");
+							 }
 
                 })
                         .catch(function(response){
@@ -712,6 +709,8 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 	if(userRole == 2){
 			searchCustomersUrl = searchCustomersUrl + $scope.userPid + "&role=3"; 
 			console.log("Debug: searchCustomersUrl = ", searchCustomersUrl);
+	}else if(userRole == 1){
+			searchCustomersUrl = searchCustomersUrl + $scope.userPid + "&role=2"; 
 	}else{
 			console.log("Debug: userRole is not an admin, redirect somewhere else then...");
 	}
