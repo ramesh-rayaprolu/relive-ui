@@ -1,6 +1,6 @@
  <!--Partner Dashboard-->
     
-<div class="content">
+<div class="content" ng-controller="AdminDashCtrl">
             <div class="container-fluid">
                 <div class="row">
                     <div class="col-lg-12">
@@ -53,7 +53,7 @@
                                     <button type="submit" class="btn btn-primary btn-space">
                                         Make Payment
                                     </button>
-                                    <button type="submit" class="btn btn-primary btn-space">
+                                    <button type="submit" class="btn btn-primary btn-space" ng-click="LinkAddAdmin()">
                                         Add a New Admin
                                         </button>
                                     </div>
