@@ -416,7 +416,17 @@ app.controller('SignupCtrl', function($scope, $location, $http, $cookies) {
 
 app.controller('PaymentCtrl', function($scope, $location, $http, $cookies) {
 	checkLoginStatusNav();
-	
+
+	// CHECK AND SEE IF USER IS LOGGED IN			
+	var checkCookie = $cookies.get('auth_cookie');
+
+	if( checkCookie == null ){
+		console.log("Debug: user is not logged in yet, create user and pay.");
+
+
+
+
+
 	var signup_info = JSON.parse($cookies.get("signup_info"));
 
 	console.log("Debug: signup_info cookie = ", signup_info);
@@ -501,9 +511,75 @@ app.controller('PaymentCtrl', function($scope, $location, $http, $cookies) {
 				$location.path("/failed");
 	   	});
 
+		}
 
 
-   }
+
+
+
+
+
+
+
+
+
+	}else{
+		console.log("Debug: payment else, logged in and needs to make payment.");
+
+			// GET PRODUCTS
+			var getProductsUrl = "http://127.0.0.1:9999/api/products/list";
+			$scope.products = [];
+			$scope.selectedProductName = null;
+			$scope.selectedProductAmount = 0;
+
+			// CALL PRODUCT API TO GET LIST Of PRODUCTS
+			$http.get(getProductsUrl) 
+			   .then(function(response) { 
+					if(response.data){
+						$scope.products = response.data;
+						console.log("Debug: products = ", $scope.products);
+					}else{
+						console.log("Debug: no products");
+					}
+				})
+			   .catch(function(response){
+				   console.log("No existing products.");
+		   });
+
+	$scope.selectProduct = function(){
+		$scope.selectedProductName = $scope.productSelection.ProductType;	
+		$scope.selectedProductAmount = $scope.productSelection.Amount;
+		console.log("Debug: selected product name = ", $scope.selectedProductName);
+		console.log("Debug: selected product amount = ", $scope.selectedProductAmount);
+	}
+
+
+
+		var user_info = JSON.parse($cookies.get("user_info"));
+		var partner_id = user_info.ID;
+
+
+
+		$scope.makePayment = function() {
+			var makePaymentUrl = "http://127.0.0.1:9999/api/payment/do";
+
+			$scope.paymentDetails.ID = partner_id;
+			console.log("Debug: $scope.paymentDetails = ", $scope.paymentDetails);
+
+			$http.post(makePaymentUrl, $scope.paymentDetails) 
+					.then(function(response) { 
+						console.log("Payment successful.");
+						$location.path("/partner_dashboard");
+
+					})
+					.catch(function(response){
+  					   console.log("payment up unsuccessful.");
+    					$location.path("/partner_dashboard");
+					});
+		}
+	}//else
+
+	 
 });
 
 
@@ -706,7 +782,7 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 	$scope.FirstName = $scope.user_info.FirstName;
 	$scope.userPid = $scope.user_info.ID;
 
-	// MAKE SURE ROLE IS ADMIN, THEN CONSTRUCT API AND CALL FOR LIST OF CUSTOMERS
+	// CONSTRUCT SEARCH API BASED ON ROLE (either search for admins or customers)
 	if(userRole == 2){
 			searchCustomersUrl = searchCustomersUrl + $scope.userPid + "&role=3"; 
 			console.log("Debug: searchCustomersUrl = ", searchCustomersUrl);
@@ -730,73 +806,10 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 				console.log("Debug: something has gone wrong while fetching customer videos");
 	   });
 
-/*
-	var cusoomer = [];
-   	$http.get(searchCustomersUrl) 
-   		.then(function(response) { 
-			if(response.data){
-				$scope.customerList = response.data;
-				cusoomer = response.data;
-				console.log("Debug: csdfadsfustomerList = ", cusoomer);
-				console.log("Debug: customerList = ", $scope.customerList);
-			}else{
-				console.log("Debug: admin has no customers.");
-			}
-       	})
-	   	.catch(function(response){
-				console.log("Debug: something has gone wrong while fetching list of customers");
-	   });
-
-
- var getVideoCounter = function(custId){
-		var videoCount = 0;
-		var tempSearchMediaUrl = "http://localhost:9999/api/media/search?id=" + custId;
-		console.log("Debug: tempSearchMediaUrl = ", tempSearchMediaUrl);
-
-		$http.get(tempSearchMediaUrl)
-			.then(function(response){
-				if(response.data){
-					videoCount = response.data.length;
-					console.log("Debug: response.data = ", response.data.length);
-					console.log("Debug: number of videos for this customerId " + custId + " is = ", videoCount);
-				}else{
-					console.log("Debug: number of videos for this customerId is 0");
-				}
-			})
-			.catch(function(response){
-				console.log("Debug: something went wrong in searching for number of videos");
-			})
-		;
-
-		return videoCount;
+	$scope.makePayment = function(){
+		$location.path('/payment');
 	}
 
-$scope.customerList = cusoomer;
-
-	// FUNCTION 
-	$scope.getVideoCount = function(custId){
-		var videoCount = 0;
-		var tempSearchMediaUrl = "http://localhost:9999/api/media/search?id=" + custId;
-		console.log("Debug: tempSearchMediaUrl = ", tempSearchMediaUrl);
-
-		$http.get(tempSearchMediaUrl)
-			.then(function(response){
-				if(response.data){
-					videoCount = response.data.length;
-					console.log("Debug: response.data = ", response.data.length);
-					console.log("Debug: number of videos for this customerId " + custId + " is = ", videoCount);
-				}else{
-					console.log("Debug: number of videos for this customerId is 0");
-				}
-			})
-			.catch(function(response){
-				console.log("Debug: something went wrong in searching for number of videos");
-			})
-		;
-
-		return videoCount;
-	}
-*/
 });
 
 
