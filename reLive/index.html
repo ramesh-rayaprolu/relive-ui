@@ -438,13 +438,15 @@ app.controller('SignupCustomerCtrl', function($scope, $location, $http, $cookies
                 console.log("$cookie user_info: ", $cookies.get('user_info'));
         }*/
 
+$scope.user_info = JSON.parse($cookies.get("user_info"));
+
    $scope.signUp = function() {
         var signupURL = "http://127.0.0.1:9999/api/accounts/create";
                 var role = 1;
                 //var authdata = Base64.encode($scope.login.UserName + ':' + $scope.login.PWD);
 
                 $scope.signup.Role = 3;
-                $scope.signup.PID = 2;
+                $scope.signup.PID = $scope.user_info.ID;
                 console.log($scope.signup);
                 console.log(signupURL);
 
@@ -489,13 +491,14 @@ app.controller('SignupAdminCtrl', function($scope, $location, $http, $cookies) {
                 console.log("$cookie user_info: ", $cookies.get('user_info'));
         }*/
 
+$scope.user_info = JSON.parse($cookies.get("user_info"));
    $scope.signUp = function() {
         var signupURL = "http://127.0.0.1:9999/api/accounts/create";
                 var role = 1;
                 //var authdata = Base64.encode($scope.login.UserName + ':' + $scope.login.PWD);
 
                 $scope.signup.Role = 2;
-                $scope.signup.PID = 2;
+                $scope.signup.PID = $scope.user_info.ID;
                 console.log($scope.signup);
                 console.log(signupURL);
 
