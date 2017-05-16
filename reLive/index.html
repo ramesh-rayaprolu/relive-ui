@@ -31,6 +31,7 @@
     <link rel="stylesheet" href="css/calltoaction.css">
     <link rel="stylesheet" href="css/partner.css">
     <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="css/payment.css">
 	<link href="https://unpkg.com/video.js/dist/video-js.css" rel="stylesheet">
 </head>
 
@@ -135,11 +136,14 @@ app.config(function($routeProvider, $sceProvider) {
 					templateUrl : "./signout.html"
 					})
 			.when("/signupcustomer", {
-                                        templateUrl : "./signupcustomer.html"
-                                        })
-                        .when("/signupadmin", {
-                                        templateUrl : "./signupadmin.html"
-                                        })
+					templateUrl : "./signupcustomer.html"
+                    })
+            .when("/signupadmin", {
+                    templateUrl : "./signupadmin.html"
+            })
+            .when("/payment", {
+                    templateUrl : "./payment.html"
+            })
 
 			;
 
@@ -357,14 +361,6 @@ app.service('fileUpload', ['$http','$location', function ($http, $location) {
 						});
 				}
 				}]);
-// ***************************************************************************************************
-//
-// AngularJS Controller ----	LogoutCtrl
-//
-// ***************************************************************************************************
-
-
-
 
 // ***************************************************************************************************
 //
@@ -374,29 +370,21 @@ app.service('fileUpload', ['$http','$location', function ($http, $location) {
 
 app.controller('SignupCtrl', function($scope, $location, $http, $cookies) {
 	checkLoginStatusNav();
-/*	var checkCookie = $cookies.get('auth_cookie');
-		console.log("$cookie user_info: ", $cookies.get('user_info'));
-		
-
-	if( checkCookie == null ){
-		console.log("User is not logged in yet.");
-	}else{
-		console.log("User is looged in!!");
-		console.log("$cookie auth_cookie: ", $cookies.get('auth_cookie'));
-		console.log("$cookie user_info: ", $cookies.get('user_info'));
-	}*/
 
    $scope.signUp = function() {
         var signupURL = "http://127.0.0.1:9999/api/accounts/create";
 		var role = 1;
-		//var authdata = Base64.encode($scope.login.UserName + ':' + $scope.login.PWD);
 
 		$scope.signup.Role = 1;
-		$scope.signup.PID = 2;
+		$scope.signup.PID = 0; 		// PID=0 because signing up as partner
+
 		console.log($scope.signup);
 		console.log(signupURL);
 
+		$cookies.put("signup_info", JSON.stringify($scope.signup));
 
+		$location.path('/payment');
+/*
    	    $http.post(signupURL, $scope.signup) 
    	   		.then(function(response) { 
    	        	console.log("Sign up successful.");
@@ -407,7 +395,7 @@ app.controller('SignupCtrl', function($scope, $location, $http, $cookies) {
 			   console.log("Sign up unsuccessful.");
 				$location.path("/failed");
 	   		});
-			
+*/			
    }
       
    $scope.resetLoginForm = function(){
@@ -416,6 +404,119 @@ app.controller('SignupCtrl', function($scope, $location, $http, $cookies) {
 
 });
 
+// ***************************************************************************************************
+//
+// AngularJS Controller ----	PaymentCtrl
+//
+// ***************************************************************************************************
+
+app.controller('PaymentCtrl', function($scope, $location, $http, $cookies) {
+	checkLoginStatusNav();
+	
+	var signup_info = JSON.parse($cookies.get("signup_info"));
+
+	console.log("Debug: signup_info cookie = ", signup_info);
+	console.log("Debug: $scope.paymentDetails = ", $scope.paymentDetails);
+
+	// GET PRODUCTS
+	var getProductsUrl = "http://127.0.0.1:9999/api/products/list";
+	$scope.products = [];
+	$scope.selectedProductName = null;
+	$scope.selectedProductAmount = 0;
+
+	// CALL PRODUCT API TO GET LIST Of PRODUCTS
+    $http.get(getProductsUrl) 
+	   .then(function(response) { 
+			if(response.data){
+				$scope.products = response.data;
+				console.log("Debug: products = ", $scope.products);
+			}else{
+				console.log("Debug: no products");
+			}
+	    })
+	   .catch(function(response){
+		   console.log("No existing products.");
+   });
+
+	$scope.selectProduct = function(){
+		$scope.selectedProductName = $scope.productSelection.ProductType;	
+		$scope.selectedProductAmount = $scope.productSelection.Amount;
+		console.log("Debug: selected product name = ", $scope.selectedProductName);
+		console.log("Debug: selected product amount = ", $scope.selectedProductAmount);
+	}
+
+
+   $scope.makePayment = function() {
+   
+		// CREATE ACCOUNT FIRST
+        var signupURL = "http://127.0.0.1:9999/api/accounts/create";
+
+   	    $http.post(signupURL, signup_info) 
+   	   		.then(function(response) { 
+   	        	console.log("Sign up successful.");
+
+				// GET THE ACCOUNT ID BY SEARCHING BY USERNAME
+				var searchAccountURL = "http://127.0.0.1:9999/api/accounts/search?user=" + signup_info.UserName;
+				console.log("Debug: searchAccountURL = ", searchAccountURL);
+
+	   	    	$http.get(searchAccountURL) 
+   		   			.then(function(response) { 
+						if(response.data){
+							var partnerID = response.data.ID;
+							$scope.paymentDetails.ID = partnerID;
+							console.log("Debug: $scope.paymentDetails after adding ID = ", $scope.paymentDetails);
+
+							// CALL UPDATE PAYMENT API
+							var makePaymentUrl = "http://127.0.0.1:9999/api/payment/do";
+
+								$http.post(makePaymentUrl, $scope.paymentDetails) 
+									.then(function(response) { 
+										console.log("Payment successful.");
+										$cookies.remove("signup_info");
+										$location.path("/signin");
+
+									})
+									.catch(function(response){
+									   console.log("payment up unsuccessful.");
+										$location.path("/signup");
+									});
+
+
+
+						}	
+   	    			})
+		   			.catch(function(response){
+				   		console.log("Something happened while fetching for account...");
+						$location.path("/failed");
+		   		});
+
+
+       		})
+	   		.catch(function(response){
+			   console.log("Sign up unsuccessful.");
+				$location.path("/failed");
+	   	});
+
+
+
+
+
+
+
+/*
+   	    $http.post(signupURL, $scope.signup) 
+   	   		.then(function(response) { 
+   	        	console.log("Sign up successful.");
+				$location.path("/success");
+
+       		})
+	   		.catch(function(response){
+			   console.log("Sign up unsuccessful.");
+				$location.path("/failed");
+	   		});
+*/			
+   }
+});
 
 
 // ***************************************************************************************************
@@ -425,25 +526,13 @@ app.controller('SignupCtrl', function($scope, $location, $http, $cookies) {
 // ***************************************************************************************************
 
 app.controller('SignupCustomerCtrl', function($scope, $location, $http, $cookies) {
-        checkLoginStatusNav();
-/*      var checkCookie = $cookies.get('auth_cookie');
-                console.log("$cookie user_info: ", $cookies.get('user_info'));
-                
+    checkLoginStatusNav();
 
-        if( checkCookie == null ){
-                console.log("User is not logged in yet.");
-        }else{
-                console.log("User is looged in!!");
-                console.log("$cookie auth_cookie: ", $cookies.get('auth_cookie'));
-                console.log("$cookie user_info: ", $cookies.get('user_info'));
-        }*/
+	$scope.user_info = JSON.parse($cookies.get("user_info"));
 
-$scope.user_info = JSON.parse($cookies.get("user_info"));
-
-   $scope.signUp = function() {
+    $scope.signUp = function() {
         var signupURL = "http://127.0.0.1:9999/api/accounts/create";
                 var role = 1;
-                //var authdata = Base64.encode($scope.login.UserName + ':' + $scope.login.PWD);
 
                 $scope.signup.Role = 3;
                 $scope.signup.PID = $scope.user_info.ID;
@@ -479,17 +568,6 @@ $scope.user_info = JSON.parse($cookies.get("user_info"));
 
 app.controller('SignupAdminCtrl', function($scope, $location, $http, $cookies) {
         checkLoginStatusNav();
-/*      var checkCookie = $cookies.get('auth_cookie');
-                console.log("$cookie user_info: ", $cookies.get('user_info'));
-                
-
-        if( checkCookie == null ){
-                console.log("User is not logged in yet.");
-        }else{
-                console.log("User is looged in!!");
-                console.log("$cookie auth_cookie: ", $cookies.get('auth_cookie'));
-                console.log("$cookie user_info: ", $cookies.get('user_info'));
-        }*/
 
 $scope.user_info = JSON.parse($cookies.get("user_info"));
    $scope.signUp = function() {
@@ -533,8 +611,6 @@ $scope.user_info = JSON.parse($cookies.get("user_info"));
 
 app.controller('CustDashCtrl', function($scope, $location, $http, $cookies, $rootScope) {
 	checkLoginStatusNav();
-
-//	$scope.videoList = [{"Title":"Title1", "URL":"url1.com"},{"Title":"Title2", "URL":"url2.com"}];
 
 	var userRole = 0;
 	var customerID = 0;
@@ -602,8 +678,6 @@ app.controller('CustDashCtrl', function($scope, $location, $http, $cookies, $roo
 app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $rootScope, $timeout) {
 	checkLoginStatusNav();
 
-//	$scope.videoList = [{"Title":"Title1", "URL":"url1.com"},{"Title":"Title2", "URL":"url2.com"}];
-
 	var userRole = 0;
 	var customerID = 0;
 	var searchMediaUrl = "http://localhost:9999/api/media/search?id="
@@ -658,17 +732,6 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 				console.log("Debug: something has gone wrong while fetching list of customers");
 	   });
 
-/*
-	// GET THE COUNT OF VIDEOS FOR EACH CUSTOMER
-	for( var object in cusoomer){
-		//var count = getVideoCount(i.ID);		
-		//i.count = count;
-		//console.log("Debug: i = ", i);
-			console.log("OBJECTTT: ", object);
-			console.log("SLKDFJ:SLDFJSDF::: ", $scope.customerList);
-	} 
-		console.log("SLDKFJJSD ?!?!?! !?DKLFJSKFJ ?!");
-*/
 
  var getVideoCounter = function(custId){
 		var videoCount = 0;
@@ -692,19 +755,7 @@ app.controller('AdminDashCtrl', function($scope, $location, $http, $cookies, $ro
 
 		return videoCount;
 	}
-/*
-		// MUST WAIT 1 SECOND TO RETRIEVE THE CUSTOMERS
-		$timeout(function () {
 
-			for(var i=0; i<cusoomer.length; i++){
-				$timeout(function(cusoomer[i]){
-					cusoomer.count = getVideoCounter(cusoomer[i].ID);
-				}, 1000);
-				console.log("my object is: ", cusoomer[i]);
-			}
-
-		}, 1000);
-*/
 $scope.customerList = cusoomer;
 
 	// FUNCTION 
